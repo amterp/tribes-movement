@@ -10,6 +10,13 @@ Includes:
 
 You just sorta fly and ski around!
 
+## Structure
+
+There are two Unity projects in this tutorial:
+
+1. "LagueTerrainTutorial", which contains work related to following Sebastian Lague's "Procedural Landmass Generation" tutorial series. This is helpful as a precursor to the Tribes project.
+2. "TribesMovement" (yet to be added). This will contain the actual project with the demo of the Tribes movement, along with some terrain generation stuff.
+
 ## Media
 
 ### Terrain Generation
