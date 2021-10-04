@@ -153,9 +153,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 451068a7b5bcf2e4a8db1078e8fa5deb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mapWidth: 50
-  _mapHeight: 50
-  _noiseScale: 4
+  _seed: 0
+  _mapWidth: 200
+  _mapHeight: 100
+  _noiseScale: 16
+  _numOctaves: 4
+  _persistance: 0.5
+  _lacunarity: 2
+  _offset: {x: 0, y: 0}
   _isAutoUpdate: 1
 --- !u!114 &871106479
 MonoBehaviour:
@@ -234,7 +239,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.01
-  far clip plane: 1000
+  far clip plane: 1500
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -261,7 +266,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.33600307, y: 0.27663878, z: -0.10393764, w: 0.89429855}
-  m_LocalPosition: {x: -262.08786, y: 250.7121, z: -357.80548}
+  m_LocalPosition: {x: -350, y: 337, z: -486}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -344,7 +349,7 @@ Transform:
   m_GameObject: {fileID: 1259680076}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 50, y: 1, z: 50}
+  m_LocalScale: {x: 200, y: 1, z: 100}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2

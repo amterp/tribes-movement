@@ -8,15 +8,15 @@ public class MapDisplay : MonoBehaviour {
     [SerializeField] private Renderer _textureRenderer;
 
     public void DrawNoiseMap(float[,] noiseMap) {
-        int width = noiseMap.GetLength(0);
-        int height = noiseMap.GetLength(1);
+        int numWidthPoints = noiseMap.GetLength(0);
+        int numHeightPoints = noiseMap.GetLength(1);
 
-        Texture2D texture = new Texture2D(width, height);
+        Texture2D texture = new Texture2D(numWidthPoints, numHeightPoints);
 
-        Color[] colorMap = new Color[width * height];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                colorMap[y * width + x] = Color.Lerp(Color.black, Color.white, noiseMap[x, y]);
+        Color[] colorMap = new Color[numWidthPoints * numHeightPoints];
+        for (int y = 0; y < numHeightPoints; y++) {
+            for (int x = 0; x < numWidthPoints; x++) {
+                colorMap[y * numWidthPoints + x] = Color.Lerp(Color.black, Color.white, noiseMap[x, y]);
             }
         }
 
@@ -24,6 +24,6 @@ public class MapDisplay : MonoBehaviour {
         texture.Apply();
 
         _textureRenderer.sharedMaterial.mainTexture = texture;
-        _textureRenderer.transform.localScale = new Vector3(width, 1, height);
+        _textureRenderer.transform.localScale = new Vector3(numWidthPoints, 1, numHeightPoints);
     }
 }
