@@ -153,15 +153,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 451068a7b5bcf2e4a8db1078e8fa5deb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _seed: 0
-  _mapWidth: 200
+  _seed: 10
+  _mapWidth: 250
   _mapHeight: 100
   _noiseScale: 16
   _numOctaves: 4
-  _persistance: 0.5
+  _persistance: 0.4
   _lacunarity: 2
   _offset: {x: 0, y: 0}
   _isAutoUpdate: 1
+  _isUseColor: 1
+  _terrainTypes:
+  - Name: DeepWater
+    HeightEnd: 0.1
+    Color: {r: 0.16135636, g: 0.5397893, b: 0.6981132, a: 0}
+  - Name: Water
+    HeightEnd: 0.3
+    Color: {r: 0.2198736, g: 0.604628, b: 0.764151, a: 0}
+  - Name: Beach
+    HeightEnd: 0.4
+    Color: {r: 0.8490566, g: 0.67199886, b: 0.31639373, a: 0}
+  - Name: Grass
+    HeightEnd: 0.6
+    Color: {r: 0.31585974, g: 0.735849, b: 0.34586716, a: 0}
+  - Name: DeepGrass
+    HeightEnd: 0.72
+    Color: {r: 0.2284176, g: 0.5566038, b: 0.24988775, a: 0}
+  - Name: Mountain
+    HeightEnd: 0.8
+    Color: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 0}
+  - Name: DeepMountain
+    HeightEnd: 0.95
+    Color: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 0}
+  - Name: SnowCap
+    HeightEnd: 1
+    Color: {r: 0.8962264, g: 0.8962264, b: 0.8962264, a: 0}
 --- !u!114 &871106479
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,8 +291,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.33600307, y: 0.27663878, z: -0.10393764, w: 0.89429855}
-  m_LocalPosition: {x: -350, y: 337, z: -486}
+  m_LocalRotation: {x: 0.7071068, y: 0.000000059604645, z: -0.000000037252903, w: 0.70710677}
+  m_LocalPosition: {x: -0.000007192907, y: 1173.1387, z: 0.00014677217}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -349,7 +375,7 @@ Transform:
   m_GameObject: {fileID: 1259680076}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 200, y: 1, z: 100}
+  m_LocalScale: {x: 250, y: 1, z: 100}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
