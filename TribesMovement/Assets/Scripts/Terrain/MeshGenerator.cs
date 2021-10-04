@@ -1,0 +1,77 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public static class MeshGenerator {
+
+    public static MeshData GenerateMeshTerrain(Terrain terrain) {
+        int width = terrain.GetWidth();
+        int height = terrain.GetHeight();
+
+        MeshData meshData = MeshData.From(width, height);
+        int vertexIndex = 0;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+
+                meshData.Vertices[vertexIndex] = terrain.GetTerrainPositionAtPoint(x, y);
+                meshData.Uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
+
+                if (IsNotVertexOnRightOrBottom(width, height, x, y)) {
+                    int downRightVertexIndex = vertexIndex + width + 1;
+                    int downVertexIndex = vertexIndex + width;
+                    int rightVertexIndex = vertexIndex + 1;
+
+                    // for some reason I have to do this anti-clockwise in order to show properly, 
+                    // but I expect culling should be done on anticlockwise triangles. Why is this backwards?
+                    meshData.AddTriangle(vertexIndex, downVertexIndex, downRightVertexIndex);
+                    meshData.AddTriangle(downRightVertexIndex, rightVertexIndex, vertexIndex);
+                }
+
+                vertexIndex++;
+            }
+        }
+
+        return meshData;
+    }
+
+    private static bool IsNotVertexOnRightOrBottom(int width, int height, int x, int y) {
+        return x < width - 1 && y < height - 1;
+    }
+}
+
+public class MeshData {
+    public Vector3[] Vertices;
+    public Vector2[] Uvs;
+    public int[] Triangles;
+
+    private int _currentTriangleIndex = 0;
+
+    public static MeshData From(int meshWidth, int meshHeight) {
+        return new MeshData(new Vector3[meshWidth * meshHeight],
+            new Vector2[meshWidth * meshHeight],
+            new int[(meshWidth - 1) * (meshHeight - 1) * 6]);
+    }
+
+    private MeshData(Vector3[] vertices, Vector2[] uvs, int[] triangles) {
+        Vertices = vertices;
+        Uvs = uvs;
+        Triangles = triangles;
+    }
+
+    public void AddTriangle(int a, int b, int c) {
+        Triangles[_currentTriangleIndex++] = a;
+        Triangles[_currentTriangleIndex++] = b;
+        Triangles[_currentTriangleIndex++] = c;
+    }
+
+    public Mesh CreateMesh() {
+        Mesh mesh = new Mesh();
+        mesh.vertices = Vertices;
+        mesh.triangles = Triangles;
+        mesh.uv = Uvs;
+        mesh.RecalculateNormals();
+        return mesh;
+    }
+}

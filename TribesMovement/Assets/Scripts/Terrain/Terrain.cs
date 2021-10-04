@@ -3,10 +3,10 @@ using System.Linq;
 using UnityEngine;
 
 public struct Terrain {
-    public TerrainPoint[,] Points;
+    private TerrainPoint[,] _points;
 
     public Terrain(TerrainPoint[,] terrainPoints) {
-        Points = terrainPoints;
+        _points = terrainPoints;
     }
 
     public Color[] GetColors() {
@@ -16,18 +16,28 @@ public struct Terrain {
         Color[] colors = new Color[width * height];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                colors[y * width + x] = Points[x, y].Color;
+                colors[y * width + x] = _points[x, y].Color;
             }
         }
 
         return colors;
     }
 
+    public Vector3 GetTerrainPositionAtPoint(int x, int y) {
+        return new Vector3(x, GetHeightAtPoint(x, y), y);
+    }
+
+    public float GetHeightAtPoint(int x, int y) {
+        Debug.Assert(0 <= x && x < GetWidth(), $"x = {x} is out of bounds [0, {GetWidth()})");
+        Debug.Assert(0 <= y && y < GetHeight(), $"y = {y} is out of bounds [0, {GetHeight()})");
+        return _points[x, y].NoiseValue;
+    }
+
     public int GetWidth() {
-        return Points.GetLength(0);
+        return _points.GetLength(0);
     }
 
     public int GetHeight() {
-        return Points.GetLength(1);
+        return _points.GetLength(1);
     }
 }

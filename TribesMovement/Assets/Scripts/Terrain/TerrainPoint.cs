@@ -4,14 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public struct TerrainPoint {
-    public Vector3 Position;
+    public Vector2 Position;
+    public float NoiseValue;
     public Color Color;
 
-    public TerrainPoint(float x, float y, float z, Color color) : this(new Vector3(x, y, z), color) {
+    public TerrainPoint(float x, float y, float noiseValue, Color color) : this(new Vector2(x, y), noiseValue, color) {
     }
 
-    public TerrainPoint(Vector3 position, Color color) {
+    public TerrainPoint(Vector2 position, float noiseValue, Color color) {
         Position = position;
+        NoiseValue = noiseValue;
         Color = color;
     }
 }

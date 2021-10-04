@@ -25,6 +25,7 @@ public class MapGenerator : MonoBehaviour {
     [SerializeField] private Vector2 _offset = new Vector2(0, 0);
     [SerializeField] private bool _isAutoUpdate = true;
     [SerializeField] private bool _isUseColor = true;
+    [SerializeField] private bool _isGenerateMesh = true;
     [SerializeField] private TerrainType[] _terrainTypes;
 
     private MapDisplay _mapDisplay;
@@ -35,11 +36,12 @@ public class MapGenerator : MonoBehaviour {
 
     public void GenerateMap() {
         float[,] noiseMap = Noise.GenerateNoiseMap(_seed, _mapWidth, _mapHeight, _noiseScale, _numOctaves, _persistance, _lacunarity, _offset);
-        Terrain terrain = CreateTerrain(noiseMap, _terrainTypes, _isUseColor);
-        _mapDisplay.Display(terrain);
+        Terrain terrain = CreateTerrain(noiseMap, _terrainTypes, _isUseColor, _isGenerateMesh);
+        MeshData? meshData = _isGenerateMesh ? MeshGenerator.GenerateMeshTerrain(terrain) : null;
+        _mapDisplay.Display(terrain, meshData);
     }
 
-    private static Terrain CreateTerrain(float[,] noiseMap, TerrainType[] terrainTypes, bool isUseColor) {
+    private static Terrain CreateTerrain(float[,] noiseMap, TerrainType[] terrainTypes, bool isUseColor, bool isGenerateMesh) {
         int numWidthPoints = noiseMap.GetLength(0);
         int numHeightPoints = noiseMap.GetLength(1);
 
@@ -47,8 +49,9 @@ public class MapGenerator : MonoBehaviour {
 
         for (int y = 0; y < numHeightPoints; y++) {
             for (int x = 0; x < numWidthPoints; x++) {
-                Color color = ResolveColor(noiseMap[x, y], terrainTypes, isUseColor);
-                terrainPoints[x, y] = new TerrainPoint(x, y, 0, color);
+                float noiseValue = noiseMap[x, y];
+                Color color = ResolveColor(noiseValue, terrainTypes, isUseColor);
+                terrainPoints[x, y] = new TerrainPoint(x, y, noiseValue, color);
             }
         }
 
