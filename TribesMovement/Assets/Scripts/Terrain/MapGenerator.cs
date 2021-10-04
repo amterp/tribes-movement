@@ -26,6 +26,9 @@ public class MapGenerator : MonoBehaviour {
     [SerializeField] private bool _isAutoUpdate = true;
     [SerializeField] private bool _isUseColor = true;
     [SerializeField] private bool _isGenerateMesh = true;
+    [Range(0, 100)]
+    [SerializeField] private float _heightMultiplier = 20;
+    [SerializeField] private AnimationCurve _heightCurve;
     [SerializeField] private TerrainType[] _terrainTypes;
 
     private MapDisplay _mapDisplay;
@@ -37,7 +40,10 @@ public class MapGenerator : MonoBehaviour {
     public void GenerateMap() {
         float[,] noiseMap = Noise.GenerateNoiseMap(_seed, _mapWidth, _mapHeight, _noiseScale, _numOctaves, _persistance, _lacunarity, _offset);
         Terrain terrain = CreateTerrain(noiseMap, _terrainTypes, _isUseColor, _isGenerateMesh);
-        MeshData? meshData = _isGenerateMesh ? MeshGenerator.GenerateMeshTerrain(terrain) : null;
+
+        Func<float, float> noiseToHeightMapper = (noiseValue) => _heightCurve.Evaluate(noiseValue) * _heightMultiplier;
+        MeshData? meshData = _isGenerateMesh ? MeshGenerator.GenerateMeshTerrain(terrain, noiseToHeightMapper) : null;
+
         _mapDisplay.Display(terrain, meshData);
     }
 

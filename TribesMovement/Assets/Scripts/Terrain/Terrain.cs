@@ -23,10 +23,6 @@ public struct Terrain {
         return colors;
     }
 
-    public Vector3 GetTerrainPositionAtPoint(int x, int y) {
-        return new Vector3(x, GetHeightAtPoint(x, y), y);
-    }
-
     public float GetHeightAtPoint(int x, int y) {
         Debug.Assert(0 <= x && x < GetWidth(), $"x = {x} is out of bounds [0, {GetWidth()})");
         Debug.Assert(0 <= y && y < GetHeight(), $"y = {y} is out of bounds [0, {GetHeight()})");

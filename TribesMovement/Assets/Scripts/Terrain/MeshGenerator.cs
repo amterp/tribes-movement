@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class MeshGenerator {
 
-    public static MeshData GenerateMeshTerrain(Terrain terrain) {
+    public static MeshData GenerateMeshTerrain(Terrain terrain, Func<float, float> noiseMapper) {
         int width = terrain.GetWidth();
         int height = terrain.GetHeight();
 
@@ -15,7 +15,7 @@ public static class MeshGenerator {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
 
-                meshData.Vertices[vertexIndex] = terrain.GetTerrainPositionAtPoint(x, y);
+                meshData.Vertices[vertexIndex] = new Vector3(x, noiseMapper(terrain.GetHeightAtPoint(x, y)), y);
                 meshData.Uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 
                 if (IsNotVertexOnRightOrBottom(width, height, x, y)) {
