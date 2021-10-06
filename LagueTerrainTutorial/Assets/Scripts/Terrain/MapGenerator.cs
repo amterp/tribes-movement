@@ -7,13 +7,13 @@ using UnityEngine;
 [RequireComponent(typeof(MapDisplay))]
 public class MapGenerator : MonoBehaviour {
 
+    private const int MAP_CHUNK_SIZE = 241;
+
     public bool AutoUpdate { get { return _isAutoUpdate; } private set { _isAutoUpdate = value; } }
 
     [SerializeField] private int _seed = 0;
-    [Range(1, 2000)]
-    [SerializeField] private int _mapWidth = 50;
-    [Range(1, 2000)]
-    [SerializeField] private int _mapHeight = 50;
+    [Range(0, 6)]
+    [SerializeField] private int _levelOfUndetail = 4;
     [Range(2, 200)]
     [SerializeField] private float _noiseScale = 4;
     [Range(1, 8)]
@@ -38,11 +38,11 @@ public class MapGenerator : MonoBehaviour {
     }
 
     public void GenerateMap() {
-        float[,] noiseMap = Noise.GenerateNoiseMap(_seed, _mapWidth, _mapHeight, _noiseScale, _numOctaves, _persistance, _lacunarity, _offset);
+        float[,] noiseMap = Noise.GenerateNoiseMap(_seed, MAP_CHUNK_SIZE, MAP_CHUNK_SIZE, _noiseScale, _numOctaves, _persistance, _lacunarity, _offset);
         Terrain terrain = CreateTerrain(noiseMap, _terrainTypes, _isUseColor, _isGenerateMesh);
 
         Func<float, float> noiseToHeightMapper = (noiseValue) => _heightCurve.Evaluate(noiseValue) * _heightMultiplier;
-        MeshData? meshData = _isGenerateMesh ? MeshGenerator.GenerateMeshTerrain(terrain, noiseToHeightMapper) : null;
+        MeshData? meshData = _isGenerateMesh ? MeshGenerator.GenerateMeshTerrain(terrain, _levelOfUndetail, noiseToHeightMapper) : null;
 
         _mapDisplay.Display(terrain, meshData);
     }

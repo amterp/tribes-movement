@@ -5,22 +5,25 @@ using UnityEngine;
 
 public static class MeshGenerator {
 
-    public static MeshData GenerateMeshTerrain(Terrain terrain, Func<float, float> noiseMapper) {
+    public static MeshData GenerateMeshTerrain(Terrain terrain, int levelOfUndetail, Func<float, float> noiseMapper) {
         int width = terrain.GetWidth();
         int height = terrain.GetHeight();
+
+        int simplificationIncrement = Math.Max(1, levelOfUndetail * 2);
+        int verticesPerLine = (width - 1) / simplificationIncrement + 1;
 
         MeshData meshData = MeshData.From(width, height);
         int vertexIndex = 0;
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y += simplificationIncrement) {
+            for (int x = 0; x < width; x += simplificationIncrement) {
 
                 meshData.Vertices[vertexIndex] = new Vector3(x, noiseMapper(terrain.GetHeightAtPoint(x, y)), y);
                 meshData.Uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 
                 if (IsNotVertexOnRightOrBottom(width, height, x, y)) {
-                    int downRightVertexIndex = vertexIndex + width + 1;
-                    int downVertexIndex = vertexIndex + width;
+                    int downRightVertexIndex = vertexIndex + verticesPerLine + 1;
+                    int downVertexIndex = vertexIndex + verticesPerLine;
                     int rightVertexIndex = vertexIndex + 1;
 
                     // for some reason I have to do this anti-clockwise in order to show properly, 
