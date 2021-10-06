@@ -8,6 +8,8 @@ public static class MeshGenerator {
     public static MeshData GenerateMeshTerrain(Terrain terrain, int levelOfUndetail, Func<float, float> noiseMapper) {
         int width = terrain.GetWidth();
         int height = terrain.GetHeight();
+        int halfWidth = width / 2;
+        int halfHeight = height / 2;
 
         int simplificationIncrement = Math.Max(1, levelOfUndetail * 2);
         int verticesPerLine = (width - 1) / simplificationIncrement + 1;
@@ -18,7 +20,9 @@ public static class MeshGenerator {
         for (int y = 0; y < height; y += simplificationIncrement) {
             for (int x = 0; x < width; x += simplificationIncrement) {
 
-                meshData.Vertices[vertexIndex] = new Vector3(x, noiseMapper(terrain.GetHeightAtPoint(x, y)), y);
+                int centeredX = x - halfWidth;
+                int centeredY = y - halfHeight;
+                meshData.Vertices[vertexIndex] = new Vector3(centeredX, noiseMapper(terrain.GetHeightAtPoint(x, y)), centeredY);
                 meshData.Uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 
                 if (IsNotVertexOnRightOrBottom(width, height, x, y)) {

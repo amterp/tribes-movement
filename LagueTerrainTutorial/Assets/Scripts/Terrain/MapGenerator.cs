@@ -7,7 +7,8 @@ using UnityEngine;
 [RequireComponent(typeof(MapDisplay))]
 public class MapGenerator : MonoBehaviour {
 
-    private const int MAP_CHUNK_SIZE = 241;
+    public const int MAP_CHUNK_NUM_VERTICES = 241;
+    public const int MAP_CHUNK_SIZE = MAP_CHUNK_NUM_VERTICES - 1;
 
     public bool AutoUpdate { get { return _isAutoUpdate; } private set { _isAutoUpdate = value; } }
 
