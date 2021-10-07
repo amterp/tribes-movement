@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public struct TerrainPoint {
-    public Vector2 Position;
-    public float NoiseValue;
-    public Color Color;
+    public readonly Vector2 Position;
+    public readonly float NoiseValue;
+    public readonly Color Color;
 
     public TerrainPoint(float x, float y, float noiseValue, Color color) : this(new Vector2(x, y), noiseValue, color) {
     }

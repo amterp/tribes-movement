@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 
 public struct Terrain {
-    private TerrainPoint[,] _points;
+    private readonly TerrainPoint[,] _points;
 
     public Terrain(TerrainPoint[,] terrainPoints) {
         _points = terrainPoints;
