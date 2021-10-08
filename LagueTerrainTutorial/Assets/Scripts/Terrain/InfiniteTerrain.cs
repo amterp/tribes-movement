@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(MapGenerator))]
 public class InfiniteTerrain : MonoBehaviour {
     public const float MAX_VIEW_DISTANCE = 450;
+    public const float MAX_VIEW_DISTANCE_SQUARED = MAX_VIEW_DISTANCE * MAX_VIEW_DISTANCE;
     private static readonly int CHUNKS_VISIBLE_IN_VIEW_DISTANCE = Mathf.RoundToInt(MAX_VIEW_DISTANCE / MapGenerator.MAP_CHUNK_SIZE);
 
     [SerializeField] private Transform _viewer;
@@ -101,8 +102,8 @@ public class TerrainChunk {
     }
 
     public void UpdateVisibility(Vector3 viewerPosition) {
-        float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(viewerPosition));
-        SetVisible(viewerDistanceFromNearestEdge <= InfiniteTerrain.MAX_VIEW_DISTANCE);
+        float viewerDistanceFromNearestEdgeSquared = _bounds.SqrDistance(viewerPosition);
+        SetVisible(viewerDistanceFromNearestEdgeSquared <= InfiniteTerrain.MAX_VIEW_DISTANCE_SQUARED);
     }
 
     public bool IsVisible() {

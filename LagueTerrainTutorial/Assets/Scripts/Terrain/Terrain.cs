@@ -24,8 +24,8 @@ public struct Terrain {
     }
 
     public float GetHeightAtPoint(int x, int y) {
-        Debug.Assert(0 <= x && x < GetWidth(), $"x = {x} is out of bounds [0, {GetWidth()})");
-        Debug.Assert(0 <= y && y < GetHeight(), $"y = {y} is out of bounds [0, {GetHeight()})");
+        Debug.Assert(0 <= x && x < GetWidth(), "x is out of bounds [0, width)");
+        Debug.Assert(0 <= y && y < GetHeight(), "y is out of bounds [0, height)");
         return _points[x, y].NoiseValue;
     }
 

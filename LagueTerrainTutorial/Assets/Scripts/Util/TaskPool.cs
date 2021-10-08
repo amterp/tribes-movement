@@ -41,8 +41,10 @@ public class TaskPool<T> {
             ThreadPool.QueueUserWorkItem((i) => {
                 T result = task._taskFunction();
                 _resultQueue.Enqueue((result, task._callback));
+                ++_availableReservations;
                 RunTasksToCapacity();
             });
+            --_availableReservations;
         }
     }
 }
