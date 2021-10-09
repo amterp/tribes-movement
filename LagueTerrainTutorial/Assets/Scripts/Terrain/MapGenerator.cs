@@ -40,10 +40,7 @@ public class MapGenerator : MonoBehaviour {
     private ObjectPool<AnimationCurve> _heightCurvePool;
 
     void Awake() {
-        _mapDisplay = GetComponent<MapDisplay>();
-        _terrainDataTaskPool = TaskPool<TerrainData>.FixedSize(_numThreads);
-        _terrainMeshTaskPool = TaskPool<MeshData>.FixedSize(_numThreads);
-        _heightCurvePool = ObjectPool<AnimationCurve>.Create(() => new AnimationCurve(_heightCurve.keys));
+        Initialize();
     }
 
     void Update() {
@@ -53,27 +50,36 @@ public class MapGenerator : MonoBehaviour {
     }
 
     public void GenerateAndDisplayTerrainForEditor() {
-        TerrainData terrain = GenerateTerrainData();
-        MeshData? meshData = _isGenerateMesh ? GenerateTerrainMesh(terrain, _editorLevelOfUndetail) : null;
+        Initialize();
+        TerrainData terrain = GenerateTerrainData(Vector2.zero);
+        MeshData? meshData = _isGenerateMesh ? GenerateTerrainMeshData(terrain, _editorLevelOfUndetail) : null;
         _mapDisplay.Display(terrain, meshData);
     }
 
-    public TerrainData GenerateTerrainData() {
-        float[,] noiseMap = Noise.GenerateNoiseMap(_seed, MAP_CHUNK_SIZE, MAP_CHUNK_SIZE, _noiseScale, _numOctaves, _persistance, _lacunarity, _offset);
+    public TerrainData GenerateTerrainData(Vector2 center) {
+        float[,] noiseMap = Noise.GenerateNoiseMap(_seed, MAP_CHUNK_NUM_VERTICES, MAP_CHUNK_NUM_VERTICES, _noiseScale, _numOctaves, _persistance, _lacunarity, center + _offset);
         return CreateTerrain(noiseMap, _terrainTypes, _isUseColor, _isGenerateMesh);
     }
 
-    public void RequestTerrainData(Action<TerrainData> callback) {
-        _terrainDataTaskPool.Submit(GenerateTerrainData, callback);
+    public void RequestTerrainData(Vector2 center, Action<TerrainData> callback) {
+        _terrainDataTaskPool.Submit(() => GenerateTerrainData(center), callback);
     }
 
-    public MeshData GenerateTerrainMesh(TerrainData terrain, int levelOfUndetail) {
+    public MeshData GenerateTerrainMeshData(TerrainData terrain, int levelOfUndetail) {
         Func<float, float> noiseToHeightMapper = noiseValue => _heightCurvePool.Lease(heightCurve => heightCurve.Evaluate(noiseValue) * _heightMultiplier);
         return MeshGenerator.GenerateMeshTerrain(terrain, levelOfUndetail, noiseToHeightMapper);
     }
 
-    public void RequestTerrainMesh(TerrainData terrain, int levelOfUndetail, Action<MeshData> callback) {
-        _terrainMeshTaskPool.Submit(() => GenerateTerrainMesh(terrain, levelOfUndetail), callback);
+    public void RequestTerrainMeshData(TerrainData terrain, int levelOfUndetail, Action<MeshData> callback) {
+        _terrainMeshTaskPool.Submit(() => GenerateTerrainMeshData(terrain, levelOfUndetail), callback);
+    }
+
+    private void Initialize() {
+        Debug.Log("MapGenerator initializing...");
+        _mapDisplay = GetComponent<MapDisplay>();
+        _terrainDataTaskPool = TaskPool<TerrainData>.FixedSize(_numThreads);
+        _terrainMeshTaskPool = TaskPool<MeshData>.FixedSize(_numThreads);
+        _heightCurvePool = ObjectPool<AnimationCurve>.Create(() => new AnimationCurve(_heightCurve.keys));
     }
 
     private static TerrainData CreateTerrain(float[,] noiseMap, TerrainType[] terrainTypes, bool isUseColor, bool isGenerateMesh) {

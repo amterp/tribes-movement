@@ -20,8 +20,8 @@ public static class MeshGenerator {
         for (int y = 0; y < height; y += simplificationIncrement) {
             for (int x = 0; x < width; x += simplificationIncrement) {
 
-                int centeredX = x - halfWidth;
-                int centeredY = y - halfHeight;
+                float centeredX = x - halfWidth;
+                float centeredY = -y + halfHeight;
                 meshData.Vertices[vertexIndex] = new Vector3(centeredX, noiseMapper(terrain.GetHeightAtPoint(x, y)), centeredY);
                 meshData.Uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 
@@ -30,10 +30,8 @@ public static class MeshGenerator {
                     int downVertexIndex = vertexIndex + verticesPerLine;
                     int rightVertexIndex = vertexIndex + 1;
 
-                    // for some reason I have to do this anti-clockwise in order to show properly, 
-                    // but I expect culling should be done on anticlockwise triangles. Why is this backwards?
-                    meshData.AddTriangle(vertexIndex, downVertexIndex, downRightVertexIndex);
-                    meshData.AddTriangle(downRightVertexIndex, rightVertexIndex, vertexIndex);
+                    meshData.AddTriangle(vertexIndex, downRightVertexIndex, downVertexIndex);
+                    meshData.AddTriangle(downRightVertexIndex, vertexIndex, rightVertexIndex);
                 }
 
                 vertexIndex++;
@@ -51,7 +49,7 @@ public static class MeshGenerator {
 public class MeshData {
     public Vector3[] Vertices;
     public Vector2[] Uvs;
-    public int[] Triangles;
+    public int[] OrderedTriangleVertexConnections;
 
     private int _currentTriangleIndex = 0;
 
@@ -64,19 +62,19 @@ public class MeshData {
     private MeshData(Vector3[] vertices, Vector2[] uvs, int[] triangles) {
         Vertices = vertices;
         Uvs = uvs;
-        Triangles = triangles;
+        OrderedTriangleVertexConnections = triangles;
     }
 
     public void AddTriangle(int a, int b, int c) {
-        Triangles[_currentTriangleIndex++] = a;
-        Triangles[_currentTriangleIndex++] = b;
-        Triangles[_currentTriangleIndex++] = c;
+        OrderedTriangleVertexConnections[_currentTriangleIndex++] = a;
+        OrderedTriangleVertexConnections[_currentTriangleIndex++] = b;
+        OrderedTriangleVertexConnections[_currentTriangleIndex++] = c;
     }
 
     public Mesh CreateMesh() {
         Mesh mesh = new Mesh();
         mesh.vertices = Vertices;
-        mesh.triangles = Triangles;
+        mesh.triangles = OrderedTriangleVertexConnections;
         mesh.uv = Uvs;
         mesh.RecalculateNormals();
         return mesh;

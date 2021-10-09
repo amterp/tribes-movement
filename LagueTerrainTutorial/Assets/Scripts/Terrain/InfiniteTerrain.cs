@@ -42,8 +42,8 @@ public class InfiniteTerrain : MonoBehaviour {
                 TerrainChunk chunk;
 
                 if (!_chunksByCoordinate.ContainsKey(chunkCoordinateToEnsureVisible)) {
-                    chunk = TerrainChunk.From(chunkCoordinateToEnsureVisible, MapGenerator.MAP_CHUNK_SIZE, transform, _mapChunkMaterial, _lods, maxViewDistance, _mapGenerator.RequestTerrainMesh);
-                    _mapGenerator.RequestTerrainData(chunk.InitializeTerrainData);
+                    chunk = TerrainChunk.From(chunkCoordinateToEnsureVisible, MapGenerator.MAP_CHUNK_SIZE, transform, _mapChunkMaterial, _lods, maxViewDistance, _mapGenerator.RequestTerrainMeshData);
+                    _mapGenerator.RequestTerrainData(chunk.WorldPosition.DropY(), chunk.InitializeTerrainData);
                     _chunksByCoordinate.Add(chunkCoordinateToEnsureVisible, chunk);
                 } else {
                     chunk = _chunksByCoordinate[chunkCoordinateToEnsureVisible];
@@ -58,6 +58,9 @@ public class InfiniteTerrain : MonoBehaviour {
 }
 
 public class TerrainChunk {
+
+    public Vector3 WorldPosition { get { return _worldPosition; } private set { } }
+
     private GameObject _meshObject;
     private Vector3 _worldPosition;
     private Bounds _bounds;
@@ -66,7 +69,7 @@ public class TerrainChunk {
     private MeshFilter _meshFilter;
     private LodInfo[] _lods;
     private float _maxViewDistance;
-    private Action<TerrainData, int, Action<MeshData>> _meshGenerationProvider;
+    private Action<TerrainData, int, Action<MeshData>> _meshDataLoader;
     private LoadingCache<int, MeshData> _meshDataByLodLoadingCache;
     private LoadingCache<int, Mesh> _meshByLodLoadingCache;
     private int _previousLevelOfUndetail = -1;
@@ -77,7 +80,7 @@ public class TerrainChunk {
             Material chunkMaterial,
             LodInfo[] lods,
             float maxViewDistance,
-            Action<TerrainData, int, Action<MeshData>> meshGenerator) {
+            Action<TerrainData, int, Action<MeshData>> meshDataLoader) {
         Vector3 worldPosition = new Vector3(coordinate.x * size, 0, coordinate.y * size);
         Bounds bounds = new Bounds(worldPosition, Vector3.one * size);
 
@@ -96,7 +99,7 @@ public class TerrainChunk {
             meshFilter,
             lods,
             maxViewDistance,
-            meshGenerator);
+            meshDataLoader);
         chunk.SetVisible(false);
 
         return chunk;
@@ -109,7 +112,7 @@ public class TerrainChunk {
             MeshFilter meshFilter,
             LodInfo[] lods,
             float maxViewDistance,
-            Action<TerrainData, int, Action<MeshData>> meshGenerator) {
+            Action<TerrainData, int, Action<MeshData>> meshDataLoader) {
         _meshObject = meshObject;
         _worldPosition = worldPosition;
         _bounds = bounds;
@@ -117,13 +120,13 @@ public class TerrainChunk {
         _meshFilter = meshFilter;
         _lods = lods;
         _maxViewDistance = maxViewDistance;
-        _meshGenerationProvider = meshGenerator;
+        _meshDataLoader = meshDataLoader;
         _meshByLodLoadingCache = LoadingCache<int, Mesh>.Create((levelOfUndetail, callback) => LoadMesh(levelOfUndetail, callback));
     }
 
     public void InitializeTerrainData(TerrainData terrainData) {
         _terrainData = terrainData;
-        _meshDataByLodLoadingCache = LoadingCache<int, MeshData>.Create((levelOfUndetail, callback) => _meshGenerationProvider(terrainData, levelOfUndetail, callback));
+        _meshDataByLodLoadingCache = LoadingCache<int, MeshData>.Create((levelOfUndetail, callback) => _meshDataLoader(terrainData, levelOfUndetail, callback));
     }
 
     public void UpdateVisibility(Vector3 viewerPosition) {
@@ -160,6 +163,7 @@ public class TerrainChunk {
     }
 
     private void OnMeshDataLoaded(int levelOfUndetail, MeshData meshData) {
+        _meshRenderer.material.mainTexture = TextureGenerator.From((TerrainData)_terrainData);
         _meshByLodLoadingCache.Load(levelOfUndetail, OnMeshLoaded);
     }
 
