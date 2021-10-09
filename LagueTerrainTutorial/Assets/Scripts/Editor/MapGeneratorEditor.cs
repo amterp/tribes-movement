@@ -10,11 +10,11 @@ public class MapGeneratorEditor : Editor {
         MapGenerator mapGenerator = (MapGenerator)target;
 
         if (DrawInspectorAndIsUpdated() && mapGenerator.AutoUpdate) {
-            mapGenerator.GenerateAndDisplayTerrain();
+            mapGenerator.GenerateAndDisplayTerrainForEditor();
         }
 
         if (GUILayout.Button("Generate")) {
-            mapGenerator.GenerateAndDisplayTerrain();
+            mapGenerator.GenerateAndDisplayTerrainForEditor();
         }
     }
 

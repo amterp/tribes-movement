@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class TextureGenerator {
-    public static Texture2D From(Terrain terrain) {
+    public static Texture2D From(TerrainData terrain) {
         Texture2D texture = new Texture2D(terrain.GetWidth(), terrain.GetHeight());
         texture.filterMode = FilterMode.Point;
         texture.wrapMode = TextureWrapMode.Clamp;

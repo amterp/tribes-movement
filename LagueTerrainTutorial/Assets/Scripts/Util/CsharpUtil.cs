@@ -17,4 +17,8 @@ public static class CsharpUtil {
     public static long CurrentTimeNanos() {
         return (long)((DateTime.UtcNow - EPOCH).TotalMilliseconds * 1000000.0);
     }
+
+    public static T Last<T>(this T[] array) {
+        return array[array.Length - 1];
+    }
 }

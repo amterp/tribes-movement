@@ -17,7 +17,7 @@ public class MapDisplay : MonoBehaviour {
         Initialize();
     }
 
-    public void Display(Terrain terrain, MeshData? meshData) {
+    public void Display(TerrainData terrain, MeshData? meshData) {
         Initialize();
         Texture2D texture = TextureGenerator.From(terrain);
         if (meshData == null) {
@@ -34,6 +34,5 @@ public class MapDisplay : MonoBehaviour {
         _nonMeshRenderer = _nonMeshTarget.GetComponent<Renderer>();
         _meshFilter = _meshTarget.GetComponent<MeshFilter>();
         _meshRenderer = _meshTarget.GetComponent<MeshRenderer>();
-        Debug.Log("Initialized.");
     }
 }

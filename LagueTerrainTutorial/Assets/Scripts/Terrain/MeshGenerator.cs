@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class MeshGenerator {
 
-    public static MeshData GenerateMeshTerrain(Terrain terrain, int levelOfUndetail, Func<float, float> noiseMapper) {
+    public static MeshData GenerateMeshTerrain(TerrainData terrain, int levelOfUndetail, Func<float, float> noiseMapper) {
         int width = terrain.GetWidth();
         int height = terrain.GetHeight();
         int halfWidth = width / 2;
