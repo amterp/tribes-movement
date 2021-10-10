@@ -76,7 +76,37 @@ public class MeshData {
         mesh.vertices = Vertices;
         mesh.triangles = OrderedTriangleVertexConnections;
         mesh.uv = Uvs;
-        mesh.RecalculateNormals();
+        mesh.normals = CalculateNormals();
         return mesh;
+    }
+
+    private Vector3[] CalculateNormals() {
+        Vector3[] normals = new Vector3[Vertices.Length];
+        int numTriangles = OrderedTriangleVertexConnections.Length / 3;
+        for (int triangleStartIndex = 0; triangleStartIndex < OrderedTriangleVertexConnections.Length; triangleStartIndex += 3) {
+            int vertexIndexA = OrderedTriangleVertexConnections[triangleStartIndex];
+            int vertexIndexB = OrderedTriangleVertexConnections[triangleStartIndex + 1];
+            int vertexIndexC = OrderedTriangleVertexConnections[triangleStartIndex + 2];
+            Vector3 normal = CalculateVertexNormal(vertexIndexA, vertexIndexB, vertexIndexC);
+            normals[vertexIndexA] += normal;
+            normals[vertexIndexB] += normal;
+            normals[vertexIndexC] += normal;
+        }
+
+        for (int normalIndex = 0; normalIndex < normals.Length; normalIndex++) {
+            normals[normalIndex] /= 3;
+        }
+
+        return normals;
+    }
+
+    private Vector3 CalculateVertexNormal(int vertexIndexA, int vertexIndexB, int vertexIndexC) {
+        Vector3 a = Vertices[vertexIndexA];
+        Vector3 b = Vertices[vertexIndexB];
+        Vector3 c = Vertices[vertexIndexC];
+
+        Vector3 ab = b - a;
+        Vector3 ac = c - a;
+        return Vector3.Cross(ab, ac).normalized;
     }
 }

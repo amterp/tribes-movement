@@ -77,7 +77,7 @@ public class TerrainChunk {
     private Vector3 _worldPosition;
     private Bounds _bounds;
     private TerrainData? _terrainData;
-    private MeshRenderer _meshRenderer; // todo why store this?
+    private MeshRenderer _meshRenderer;
     private MeshFilter _meshFilter;
     private Transform _viewerTransform;
     private LodInfo[] _lods;
