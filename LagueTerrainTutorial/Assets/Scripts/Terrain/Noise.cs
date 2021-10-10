@@ -7,6 +7,8 @@ public static class Noise {
     public static float[,] GenerateNoiseMap(int seed, int mapWidth, int mapHeight, float scale, int numOctaves, float persistance, float lacunarity, Vector2 offset) {
         float[,] noiseMap = new float[mapWidth, mapHeight];
 
+        (float minHeight, float maxHeight) = CalculateHeightExtremes(numOctaves, persistance);
+
         System.Random rng = new System.Random(seed);
         Vector2[] octaveOffsets = new Vector2[numOctaves];
         for (int octave = 0; octave < numOctaves; octave++) {
@@ -16,9 +18,6 @@ public static class Noise {
         }
 
         scale = Mathf.Max(0.0001f, scale);
-
-        float minNoiseHeight = float.MinValue;
-        float maxNoiseHeight = float.MaxValue;
 
         float halfWidth = mapWidth / 2f;
         float halfHeight = mapHeight / 2f;
@@ -36,30 +35,31 @@ public static class Noise {
                     float sampleX = (x - halfWidth + octaveOffset.x) / scale * frequency;
                     float sampleY = (y - halfHeight + octaveOffset.y) / scale * frequency;
 
-                    float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
+                    float perlinValue = Mathf.PerlinNoise(sampleX, sampleY);
                     noiseHeight += perlinValue * amplitude;
 
                     amplitude *= persistance;
                     frequency *= lacunarity;
                 }
 
-                minNoiseHeight = Mathf.Max(minNoiseHeight, noiseHeight);
-                maxNoiseHeight = Mathf.Min(maxNoiseHeight, noiseHeight);
-
-                noiseMap[x, y] = noiseHeight;
+                noiseMap[x, y] = Normalize(minHeight, maxHeight, noiseHeight);
             }
         }
-
-        NormalizeNoiseMap(mapWidth, mapHeight, noiseMap, minNoiseHeight, maxNoiseHeight);
 
         return noiseMap;
     }
 
-    private static void NormalizeNoiseMap(int mapWidth, int mapHeight, float[,] noiseMap, float minNoiseHeight, float maxNoiseHeight) {
-        for (int y = 0; y < mapHeight; y++) {
-            for (int x = 0; x < mapWidth; x++) {
-                noiseMap[x, y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[x, y]);
-            }
+    private static (float minHeight, float maxHeight) CalculateHeightExtremes(int numOctaves, float persistance) {
+        float theoExtreme = 0;
+        float amplitude = 1;
+        for (int octave = 0; octave < numOctaves; octave++) {
+            theoExtreme += amplitude;
+            amplitude *= persistance;
         }
+        return (0, theoExtreme);
+    }
+
+    private static float Normalize(float minHeight, float maxHeight, float value) {
+        return Mathf.InverseLerp(minHeight, maxHeight, value);
     }
 }

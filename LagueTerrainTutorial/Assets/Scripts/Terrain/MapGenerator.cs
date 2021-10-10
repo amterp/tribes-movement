@@ -17,7 +17,7 @@ public class MapGenerator : MonoBehaviour {
     [SerializeField] private int _numThreads = 12;
     [Range(0, 6)]
     [SerializeField] private int _editorLevelOfUndetail = 4;
-    [Range(2, 200)]
+    [Range(2, 2000)]
     [SerializeField] private float _noiseScale = 4;
     [Range(1, 8)]
     [SerializeField] private int _numOctaves = 4;
@@ -29,7 +29,7 @@ public class MapGenerator : MonoBehaviour {
     [SerializeField] private bool _isAutoUpdate = true;
     [SerializeField] private bool _isUseColor = true;
     [SerializeField] private bool _isGenerateMesh = true;
-    [Range(0, 100)]
+    [Range(0, 1000)]
     [SerializeField] private float _heightMultiplier = 20;
     [SerializeField] private AnimationCurve _heightCurve;
     [SerializeField] private TerrainType[] _terrainTypes;
