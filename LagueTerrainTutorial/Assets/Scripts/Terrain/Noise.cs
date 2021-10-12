@@ -3,9 +3,11 @@ using System.Collections;
 using UnityEngine;
 
 public static class Noise {
+    public const int MAX_BORDER_OFFSET = TerrainConstants.MAX_LEVEL_OF_UNDETAIL * 2 * 2;
+    public const int MAX_HALF_BORDER_OFFSET = MAX_BORDER_OFFSET / 2;
 
-    public static float[,] GenerateNoiseMap(int seed, int mapWidth, int mapHeight, float scale, int numOctaves, float persistance, float lacunarity, Vector2 offset) {
-        float[,] noiseMap = new float[mapWidth, mapHeight];
+    public static NoiseMap GenerateNoiseMap(int seed, int mapNumPoints, float scale, int numOctaves, float persistance, float lacunarity, Vector2 offset) {
+        float[,] noiseMap = new float[mapNumPoints + MAX_BORDER_OFFSET, mapNumPoints + MAX_BORDER_OFFSET];
 
         (float minHeight, float maxHeight) = CalculateHeightExtremes(numOctaves, persistance);
 
@@ -19,11 +21,10 @@ public static class Noise {
 
         scale = Mathf.Max(0.0001f, scale);
 
-        float halfWidth = mapWidth / 2f;
-        float halfHeight = mapHeight / 2f;
+        float halfSize = mapNumPoints / 2f;
 
-        for (int y = 0; y < mapHeight; y++) {
-            for (int x = 0; x < mapWidth; x++) {
+        for (int y = -MAX_HALF_BORDER_OFFSET; y < mapNumPoints + MAX_HALF_BORDER_OFFSET; y++) {
+            for (int x = -MAX_HALF_BORDER_OFFSET; x < mapNumPoints + MAX_HALF_BORDER_OFFSET; x++) {
 
                 float amplitude = 1;
                 float frequency = 1;
@@ -32,8 +33,8 @@ public static class Noise {
                 for (int octave = 0; octave < numOctaves; octave++) {
 
                     Vector2 octaveOffset = octaveOffsets[octave];
-                    float sampleX = (x - halfWidth + octaveOffset.x) / scale * frequency;
-                    float sampleY = (y - halfHeight + octaveOffset.y) / scale * frequency;
+                    float sampleX = (x - halfSize + octaveOffset.x) / scale * frequency;
+                    float sampleY = (y - halfSize + octaveOffset.y) / scale * frequency;
 
                     float perlinValue = Mathf.PerlinNoise(sampleX, sampleY);
                     noiseHeight += perlinValue * amplitude;
@@ -42,11 +43,11 @@ public static class Noise {
                     frequency *= lacunarity;
                 }
 
-                noiseMap[x, y] = Normalize(minHeight, maxHeight, noiseHeight);
+                noiseMap[x + MAX_HALF_BORDER_OFFSET, y + MAX_HALF_BORDER_OFFSET] = Normalize(minHeight, maxHeight, noiseHeight);
             }
         }
 
-        return noiseMap;
+        return new NoiseMap(noiseMap);
     }
 
     private static (float minHeight, float maxHeight) CalculateHeightExtremes(int numOctaves, float persistance) {
@@ -61,5 +62,21 @@ public static class Noise {
 
     private static float Normalize(float minHeight, float maxHeight, float value) {
         return Mathf.InverseLerp(minHeight, maxHeight, value);
+    }
+}
+
+public struct NoiseMap {
+    private float[,] _map;
+
+    public NoiseMap(float[,] map) {
+        _map = map;
+    }
+
+    public float Sample(int x, int y) {
+        return _map[x + Noise.MAX_HALF_BORDER_OFFSET, y + Noise.MAX_HALF_BORDER_OFFSET];
+    }
+
+    public int GetSize() {
+        return _map.GetLength(0) - Noise.MAX_BORDER_OFFSET;
     }
 }

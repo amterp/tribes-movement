@@ -26,4 +26,8 @@ public static class CsharpUtil {
     public static Vector2 DropY(this Vector3 vector3) {
         return new Vector2(vector3.x, vector3.z);
     }
+
+    public static string ToDetailedString(this Vector3 vector3) {
+        return $"({vector3.x}, {vector3.y}, {vector3.z})";
+    }
 }

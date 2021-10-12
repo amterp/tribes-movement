@@ -7,16 +7,13 @@ using UnityEngine;
 [RequireComponent(typeof(MapDisplay))]
 public class MapGenerator : MonoBehaviour {
 
-    public const int MAP_CHUNK_NUM_VERTICES = 241;
-    public const int MAP_CHUNK_SIZE = MAP_CHUNK_NUM_VERTICES - 1;
-
     public bool AutoUpdate { get { return _isAutoUpdate; } private set { _isAutoUpdate = value; } }
 
     [SerializeField] private int _seed = 0;
     [Range(1, 24)]
-    [SerializeField] private int _numThreads = 12;
+    [SerializeField] private int _numThreads = 4;
     [Range(0, 6)]
-    [SerializeField] private int _editorLevelOfUndetail = 4;
+    [SerializeField] private int _editorLevelOfUndetail = 2;
     [Range(2, 2000)]
     [SerializeField] private float _noiseScale = 4;
     [Range(1, 8)]
@@ -57,8 +54,8 @@ public class MapGenerator : MonoBehaviour {
     }
 
     public TerrainData GenerateTerrainData(Vector2 center) {
-        float[,] noiseMap = Noise.GenerateNoiseMap(_seed, MAP_CHUNK_NUM_VERTICES, MAP_CHUNK_NUM_VERTICES, _noiseScale, _numOctaves, _persistance, _lacunarity, center + _offset);
-        return CreateTerrain(noiseMap, _terrainTypes, _isUseColor, _isGenerateMesh);
+        NoiseMap noiseMap = Noise.GenerateNoiseMap(_seed, TerrainConstants.MAP_CHUNK_NUM_VERTICES, _noiseScale, _numOctaves, _persistance, _lacunarity, center + _offset);
+        return CreateTerrain(noiseMap, _terrainTypes, _isUseColor);
     }
 
     public void RequestTerrainData(Vector2 center, Action<TerrainData> callback) {
@@ -82,21 +79,20 @@ public class MapGenerator : MonoBehaviour {
         _heightCurvePool = ObjectPool<AnimationCurve>.Create(() => new AnimationCurve(_heightCurve.keys));
     }
 
-    private static TerrainData CreateTerrain(float[,] noiseMap, TerrainType[] terrainTypes, bool isUseColor, bool isGenerateMesh) {
-        int numWidthPoints = noiseMap.GetLength(0);
-        int numHeightPoints = noiseMap.GetLength(1);
+    private static TerrainData CreateTerrain(NoiseMap noiseMap, TerrainType[] terrainTypes, bool isUseColor) {
+        int numSidePoints = noiseMap.GetSize();
 
-        TerrainPoint[,] terrainPoints = new TerrainPoint[numWidthPoints, numHeightPoints];
+        TerrainPoint[,] terrainPoints = new TerrainPoint[numSidePoints, numSidePoints];
 
-        for (int y = 0; y < numHeightPoints; y++) {
-            for (int x = 0; x < numWidthPoints; x++) {
-                float noiseValue = noiseMap[x, y];
+        for (int y = 0; y < numSidePoints; y++) {
+            for (int x = 0; x < numSidePoints; x++) {
+                float noiseValue = noiseMap.Sample(x, y);
                 Color color = ResolveColor(noiseValue, terrainTypes, isUseColor);
                 terrainPoints[x, y] = new TerrainPoint(x, y, noiseValue, color);
             }
         }
 
-        return new TerrainData(terrainPoints);
+        return new TerrainData(terrainPoints, noiseMap);
     }
 
     private static Color ResolveColor(float noiseHeight, TerrainType[] terrainTypes, bool isUseColor) {

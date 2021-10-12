@@ -4,9 +4,11 @@ using UnityEngine;
 
 public struct TerrainData {
     private readonly TerrainPoint[,] _points;
+    private readonly NoiseMap _sourceNoiseMap;
 
-    public TerrainData(TerrainPoint[,] terrainPoints) {
+    public TerrainData(TerrainPoint[,] terrainPoints, NoiseMap noiseMapUsedToGenerate) {
         _points = terrainPoints;
+        _sourceNoiseMap = noiseMapUsedToGenerate;
     }
 
     public Color[] GetColors() {
@@ -35,5 +37,9 @@ public struct TerrainData {
 
     public int GetHeight() {
         return _points.GetLength(1);
+    }
+
+    public NoiseMap GetSourceNoiseMap() {
+        return _sourceNoiseMap;
     }
 }

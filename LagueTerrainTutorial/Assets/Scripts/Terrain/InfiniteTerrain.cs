@@ -5,7 +5,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(MapGenerator))]
 public class InfiniteTerrain : MonoBehaviour {
-    private readonly static float MIN_MOVE_FOR_CHUNKS_UPDATE_SQUARED = Mathf.Pow(0.1f * MapGenerator.MAP_CHUNK_SIZE, 2);
+    private readonly static float MIN_MOVE_FOR_CHUNKS_UPDATE_SQUARED = Mathf.Pow(0.1f * TerrainConstants.MAP_CHUNK_SIZE, 2);
 
     [SerializeField] private Transform _viewer;
     [SerializeField] private Material _mapChunkMaterial;
@@ -20,7 +20,7 @@ public class InfiniteTerrain : MonoBehaviour {
 
     void Awake() {
         _maxViewDistance = _lods.Last().VisibleDistanceEnd;
-        _maxChunksViewDistance = Mathf.RoundToInt(_maxViewDistance / MapGenerator.MAP_CHUNK_SIZE);
+        _maxChunksViewDistance = Mathf.RoundToInt(_maxViewDistance / TerrainConstants.MAP_CHUNK_SIZE);
         _mapGenerator = GetComponent<MapGenerator>();
         _chunksByCoordinate = new Dictionary<Vector2, TerrainChunk>();
         _chunksVisibleLastFrame = new List<TerrainChunk>();
@@ -44,8 +44,8 @@ public class InfiniteTerrain : MonoBehaviour {
         _chunksVisibleLastFrame.ForEach(chunk => chunk.SetVisible(false));
         _chunksVisibleLastFrame.Clear();
 
-        int currentChunkCoordinateX = Mathf.RoundToInt(_viewer.transform.position.x / MapGenerator.MAP_CHUNK_SIZE);
-        int currentChunkCoordinateY = Mathf.RoundToInt(_viewer.transform.position.z / MapGenerator.MAP_CHUNK_SIZE);
+        int currentChunkCoordinateX = Mathf.RoundToInt(_viewer.transform.position.x / TerrainConstants.MAP_CHUNK_SIZE);
+        int currentChunkCoordinateY = Mathf.RoundToInt(_viewer.transform.position.z / TerrainConstants.MAP_CHUNK_SIZE);
 
         for (int yOffsetFromPlayer = -_maxChunksViewDistance; yOffsetFromPlayer <= _maxChunksViewDistance; yOffsetFromPlayer++) {
             for (int xOffsetFromPlayer = -_maxChunksViewDistance; xOffsetFromPlayer <= _maxChunksViewDistance; xOffsetFromPlayer++) {
@@ -54,7 +54,7 @@ public class InfiniteTerrain : MonoBehaviour {
                 TerrainChunk chunk;
 
                 if (!_chunksByCoordinate.ContainsKey(chunkCoordinateToEnsureVisible)) {
-                    chunk = TerrainChunk.From(chunkCoordinateToEnsureVisible, MapGenerator.MAP_CHUNK_SIZE, transform, _mapChunkMaterial, _viewer, _lods, _maxViewDistance, _mapGenerator.RequestTerrainMeshData);
+                    chunk = TerrainChunk.From(chunkCoordinateToEnsureVisible, TerrainConstants.MAP_CHUNK_SIZE, transform, _mapChunkMaterial, _viewer, _lods, _maxViewDistance, _mapGenerator.RequestTerrainMeshData);
                     _mapGenerator.RequestTerrainData(chunk.WorldPosition.DropY(), chunk.InitializeTerrainData);
                     _chunksByCoordinate.Add(chunkCoordinateToEnsureVisible, chunk);
                 } else {
