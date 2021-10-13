@@ -79,6 +79,7 @@ public class TerrainChunk {
     private TerrainData? _terrainData;
     private MeshRenderer _meshRenderer;
     private MeshFilter _meshFilter;
+    private MeshCollider _meshCollider;
     private Transform _viewerTransform;
     private LodInfo[] _lods;
     private float _maxViewDistance;
@@ -105,12 +106,14 @@ public class TerrainChunk {
         MeshRenderer meshRenderer = meshObject.AddComponent<MeshRenderer>();
         meshRenderer.material = chunkMaterial;
         MeshFilter meshFilter = meshObject.AddComponent<MeshFilter>();
+        MeshCollider meshCollider = meshObject.AddComponent<MeshCollider>();
 
         TerrainChunk chunk = new TerrainChunk(meshObject,
             worldPosition,
             bounds,
             meshRenderer,
             meshFilter,
+            meshCollider,
             viewerTransform,
             lods,
             maxViewDistance,
@@ -125,6 +128,7 @@ public class TerrainChunk {
             Bounds bounds,
             MeshRenderer meshRenderer,
             MeshFilter meshFilter,
+            MeshCollider meshCollider,
             Transform viewerTransform,
             LodInfo[] lods,
             float maxViewDistance,
@@ -134,6 +138,7 @@ public class TerrainChunk {
         _bounds = bounds;
         _meshRenderer = meshRenderer;
         _meshFilter = meshFilter;
+        _meshCollider = meshCollider;
         _viewerTransform = viewerTransform;
         _lods = lods;
         _maxViewDistance = maxViewDistance;
@@ -187,6 +192,7 @@ public class TerrainChunk {
 
     private void OnMeshLoaded(Mesh mesh) {
         _meshFilter.mesh = mesh;
+        _meshCollider.sharedMesh = mesh;
     }
 
     private void LoadMesh(int levelOfUndetail, Action<Mesh> callback) {
