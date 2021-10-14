@@ -23,8 +23,12 @@ public static class CsharpUtil {
         return array[array.Length - 1];
     }
 
-    public static Vector2 DropY(this Vector3 vector3) {
+    public static Vector2 ToVector2DroppingY(this Vector3 vector3) {
         return new Vector2(vector3.x, vector3.z);
+    }
+
+    public static Vector3 ZeroY(this Vector3 vector3) {
+        return new Vector3(vector3.x, 0, vector3.z);
     }
 
     public static string ToDetailedString(this Vector3 vector3) {

@@ -55,7 +55,7 @@ public class InfiniteTerrain : MonoBehaviour {
 
                 if (!_chunksByCoordinate.ContainsKey(chunkCoordinateToEnsureVisible)) {
                     chunk = TerrainChunk.From(chunkCoordinateToEnsureVisible, TerrainConstants.MAP_CHUNK_SIZE, transform, _mapChunkMaterial, _viewer, _lods, _maxViewDistance, _mapGenerator.RequestTerrainMeshData);
-                    _mapGenerator.RequestTerrainData(chunk.WorldPosition.DropY(), chunk.InitializeTerrainData);
+                    _mapGenerator.RequestTerrainData(chunk.WorldPosition.ToVector2DroppingY(), chunk.InitializeTerrainData);
                     _chunksByCoordinate.Add(chunkCoordinateToEnsureVisible, chunk);
                 } else {
                     chunk = _chunksByCoordinate[chunkCoordinateToEnsureVisible];
