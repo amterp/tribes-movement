@@ -36,6 +36,7 @@ public static class MeshGenerator {
             }
         }
 
+        meshData.CalculateBakedNormals();
         return meshData;
     }
 
@@ -49,7 +50,7 @@ public class MeshData {
     public Vector2[] Uvs;
 
     private int[] _orderedTriangleVertexConnections;
-    private Vector3[] _normals;
+    private Vector3[] _bakedNormals;
     private int _meshSize;
     private int _meshSideNumVertices;
     private int _simplificationIncrement;
@@ -88,21 +89,20 @@ public class MeshData {
         mesh.vertices = Vertices;
         mesh.triangles = _orderedTriangleVertexConnections;
         mesh.uv = Uvs;
-        CalculateNormals();
-        mesh.normals = _normals;
+        mesh.normals = _bakedNormals;
         return mesh;
     }
 
-    private void CalculateNormals() {
-        _normals = new Vector3[Vertices.Length];
+    public void CalculateBakedNormals() {
+        _bakedNormals = new Vector3[Vertices.Length];
         for (int triangleStartIndex = 0; triangleStartIndex < _orderedTriangleVertexConnections.Length; triangleStartIndex += 3) {
             int vertexIndexA = _orderedTriangleVertexConnections[triangleStartIndex];
             int vertexIndexB = _orderedTriangleVertexConnections[triangleStartIndex + 1];
             int vertexIndexC = _orderedTriangleVertexConnections[triangleStartIndex + 2];
             Vector3 normal = CalculateVertexNormal(vertexIndexA, vertexIndexB, vertexIndexC);
-            _normals[vertexIndexA] += normal;
-            _normals[vertexIndexB] += normal;
-            _normals[vertexIndexC] += normal;
+            _bakedNormals[vertexIndexA] += normal;
+            _bakedNormals[vertexIndexB] += normal;
+            _bakedNormals[vertexIndexC] += normal;
         }
 
         for (int borderIndexY = -_simplificationIncrement; borderIndexY <= _meshSize; borderIndexY += _simplificationIncrement) {
@@ -133,8 +133,8 @@ public class MeshData {
             }
         }
 
-        for (int normalIndex = 0; normalIndex < _normals.Length; normalIndex++) {
-            _normals[normalIndex].Normalize();
+        for (int normalIndex = 0; normalIndex < _bakedNormals.Length; normalIndex++) {
+            _bakedNormals[normalIndex].Normalize();
         }
     }
 
@@ -163,7 +163,7 @@ public class MeshData {
         }
 
         int index = vertexPosToAddTo.x / _simplificationIncrement + vertexPosToAddTo.y / _simplificationIncrement * (_meshSize / _simplificationIncrement + 1);
-        _normals[index] += triangleNormal;
+        _bakedNormals[index] += triangleNormal;
     }
 
     private bool OnBorderingTriangle(int borderIndexX, int borderIndexY) {
