@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(MapGenerator))]
@@ -61,7 +62,7 @@ public class InfiniteTerrain : MonoBehaviour {
                     chunk = _chunksByCoordinate[chunkCoordinateToEnsureVisible];
                 }
 
-                chunk.UpdateVisibility();
+                chunk.UpdateChunk();
                 if (chunk.IsVisible())
                     _chunksVisibleLastFrame.Add(chunk);
             }
@@ -86,7 +87,8 @@ public class TerrainChunk {
     private Action<TerrainData, int, Action<MeshData>> _meshDataLoader;
     private LoadingCache<int, MeshData> _meshDataByLodLoadingCache;
     private LoadingCache<int, Mesh> _meshByLodLoadingCache;
-    private int _previousLevelOfUndetail = -1;
+    private HashSet<LodInfo> _lodsWithMeshRequested;
+    private Mesh? _collisionMesh;
 
     public static TerrainChunk From(Vector2 coordinate,
             int size,
@@ -107,6 +109,7 @@ public class TerrainChunk {
         meshRenderer.material = chunkMaterial;
         MeshFilter meshFilter = meshObject.AddComponent<MeshFilter>();
         MeshCollider meshCollider = meshObject.AddComponent<MeshCollider>();
+        AddIndicesToLods(lods);
 
         TerrainChunk chunk = new TerrainChunk(meshObject,
             worldPosition,
@@ -132,7 +135,8 @@ public class TerrainChunk {
             Transform viewerTransform,
             LodInfo[] lods,
             float maxViewDistance,
-            Action<TerrainData, int, Action<MeshData>> meshDataLoader) {
+            Action<TerrainData, int,
+            Action<MeshData>> meshDataLoader) {
         _meshObject = meshObject;
         _worldPosition = worldPosition;
         _bounds = bounds;
@@ -144,15 +148,16 @@ public class TerrainChunk {
         _maxViewDistance = maxViewDistance;
         _meshDataLoader = meshDataLoader;
         _meshByLodLoadingCache = LoadingCache<int, Mesh>.Create((levelOfUndetail, callback) => LoadMesh(levelOfUndetail, callback));
+        _lodsWithMeshRequested = new HashSet<LodInfo>();
     }
 
     public void InitializeTerrainData(TerrainData terrainData) {
         _terrainData = terrainData;
         _meshDataByLodLoadingCache = LoadingCache<int, MeshData>.Create((levelOfUndetail, callback) => _meshDataLoader(terrainData, levelOfUndetail, callback));
-        UpdateVisibility();
+        UpdateChunk();
     }
 
-    public void UpdateVisibility() {
+    public void UpdateChunk() {
         if (_terrainData == null) return;
 
         float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(_viewerTransform.position));
@@ -161,12 +166,15 @@ public class TerrainChunk {
             return;
         }
 
+        int lodIndex = 0;
         foreach (LodInfo lod in _lods) {
             if (viewerDistanceFromNearestEdge <= lod.VisibleDistanceEnd) {
-                LoadLodMesh(lod.LevelOfUndetail);
+                if (lodIndex == 0) SetCollisionMeshIfLoaded();
+                LoadLodMesh(lod);
                 SetVisible(true);
                 return;
             }
+            lodIndex++;
         }
         Debug.LogWarning("No LODs picked in foreach loop, should not be possible.");
     }
@@ -179,20 +187,40 @@ public class TerrainChunk {
         _meshObject.SetActive(isVisible);
     }
 
-    private void LoadLodMesh(int levelOfUndetail) {
-        if (levelOfUndetail == _previousLevelOfUndetail) return;
-        _meshDataByLodLoadingCache.Load(levelOfUndetail, meshData => OnMeshDataLoaded(levelOfUndetail, meshData));
-        _previousLevelOfUndetail = levelOfUndetail;
+    private void LoadLodMesh(LodInfo lodInfoToLoad) {
+        int levelOfUndetail = lodInfoToLoad.LevelOfUndetail;
+        if (_lodsWithMeshRequested.Contains(lodInfoToLoad)) return;
+        _meshDataByLodLoadingCache.Load(levelOfUndetail, meshData => OnMeshDataLoaded(lodInfoToLoad, meshData));
+        _lodsWithMeshRequested.Add(lodInfoToLoad);
     }
 
-    private void OnMeshDataLoaded(int levelOfUndetail, MeshData meshData) {
+    private void OnMeshDataLoaded(LodInfo lodInfoToLoad, MeshData meshData) {
         _meshRenderer.material.mainTexture = TextureGenerator.From((TerrainData)_terrainData);
-        _meshByLodLoadingCache.Load(levelOfUndetail, OnMeshLoaded);
+        _meshByLodLoadingCache.Load(lodInfoToLoad.LevelOfUndetail, mesh => OnMeshLoaded(mesh, lodInfoToLoad));
     }
 
-    private void OnMeshLoaded(Mesh mesh) {
+    private void OnMeshLoaded(Mesh mesh, LodInfo lodInfoToLoad) {
         _meshFilter.mesh = mesh;
-        _meshCollider.sharedMesh = mesh;
+        if (lodInfoToLoad.UseForCollision) {
+            _collisionMesh = mesh;
+            UpdateChunk();
+        }
+    }
+
+    private void SetCollisionMeshIfLoaded() {
+        if (_collisionMesh != null) {
+            _meshCollider.sharedMesh = _collisionMesh;
+            return;
+        }
+
+        LodInfo lodToUseForCollision = _lods.Where(lod => lod.UseForCollision).First();
+
+        if (_lodsWithMeshRequested.Contains(lodToUseForCollision)) {
+            // we're waiting for that lod to be loaded still
+            return;
+        }
+
+        LoadLodMesh(lodToUseForCollision);
     }
 
     private void LoadMesh(int levelOfUndetail, Action<Mesh> callback) {
@@ -204,5 +232,11 @@ public class TerrainChunk {
         }
 
         callback(meshData.CreateMesh());
+    }
+
+    private static void AddIndicesToLods(LodInfo[] lods) {
+        for (int i = 0; i < lods.Length; i++) {
+            lods[i].Index = i;
+        }
     }
 }

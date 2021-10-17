@@ -7,9 +7,6 @@ using UnityEngine;
 public struct LodInfo {
     public int LevelOfUndetail;
     public float VisibleDistanceEnd;
-
-    public LodInfo(int levelOfUndetail, float visibleDistanceEnd) {
-        LevelOfUndetail = levelOfUndetail;
-        VisibleDistanceEnd = visibleDistanceEnd;
-    }
+    public bool UseForCollision;
+    [HideInInspector] public int? Index;
 }
