@@ -34,4 +34,10 @@ public static class CsharpUtil {
     public static string ToDetailedString(this Vector3 vector3) {
         return $"({vector3.x}, {vector3.y}, {vector3.z})";
     }
+
+    public static float normalized(this float thisFloat) {
+        if (Mathf.Approximately(thisFloat, 0)) return 0f;
+        if (thisFloat < 0) return -1;
+        return 1;
+    }
 }

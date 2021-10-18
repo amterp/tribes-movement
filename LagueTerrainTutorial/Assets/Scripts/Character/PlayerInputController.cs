@@ -3,16 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterMover))]
 public class PlayerInputController : MonoBehaviour {
-    private CharacterMover _characterMover;
+    private const int RIGHT_CLICK = 1;
+
+    [SerializeField] private MonoBehaviour _characterMoverGameObject;
+    private ICharacterMover _characterMover;
 
     void Awake() {
-        _characterMover = GetComponent<CharacterMover>();
+        _characterMover = _characterMoverGameObject as ICharacterMover;
     }
 
     void Update() {
         RunPlayerInput();
+        _characterMover.UpdateMover();
+    }
+
+    void LateUpdate() {
+        _characterMover.LateUpdateMover();
     }
 
     private void RunPlayerInput() {
@@ -23,6 +30,8 @@ public class PlayerInputController : MonoBehaviour {
 
         if (Input.GetKey(KeyCode.W)) targetDirection += transform.forward;
         if (Input.GetKey(KeyCode.S)) targetDirection += -transform.forward;
+
+        if (Input.GetMouseButton(RIGHT_CLICK)) targetDirection += transform.up;
 
         if (targetDirection == Vector3.zero) return;
 
