@@ -23,6 +23,12 @@ public class PlayerInputController : MonoBehaviour {
     }
 
     private void RunPlayerInput() {
+        bool pressJetpack = Input.GetMouseButton(RIGHT_CLICK);
+        if (!pressJetpack && Input.GetKey(KeyCode.Space)) {
+            _characterMover.Ski();
+            return;
+        }
+
         Vector3 targetDirection = Vector3.zero;
 
         if (Input.GetKey(KeyCode.A)) targetDirection += -transform.right;
@@ -31,7 +37,7 @@ public class PlayerInputController : MonoBehaviour {
         if (Input.GetKey(KeyCode.W)) targetDirection += transform.forward;
         if (Input.GetKey(KeyCode.S)) targetDirection += -transform.forward;
 
-        if (Input.GetMouseButton(RIGHT_CLICK)) targetDirection += transform.up;
+        if (pressJetpack) targetDirection += transform.up;
 
         if (targetDirection == Vector3.zero) return;
 

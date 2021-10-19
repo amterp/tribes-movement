@@ -45,6 +45,12 @@ public class GroundAirMovementDelegator : MonoBehaviour, ICharacterMover {
         }
     }
 
+    public void Ski() {
+        if (_isGroundedChecker.IsGrounded) {
+            _groundCharacterMover.Ski();
+        }
+    }
+
     private bool ShouldDelegateToGroundMover() {
         return _isGroundedChecker.IsGrounded && _latestAcceleration.y == 0;
     }

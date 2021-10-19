@@ -32,6 +32,23 @@ public class GroundCharacterMover : MonoBehaviour, ICharacterMover {
         _lastFramedAccelerated = Time.frameCount;
     }
 
+    public void Ski() {
+        Debug.Log("Skiing!" + Physics.gravity.y);
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, transform.localScale.y * 1.05f)) {
+            float x = hit.normal.x;
+            float y = hit.normal.y;
+
+            float ay = x * Physics.gravity.y / Mathf.Sqrt(1 + Mathf.Pow(y, 2) / Mathf.Pow(x, 2));
+            float ax = y / x * ay;
+            Vector3 skiingAcceleration = new Vector3(ax, ay, 0); // todo calculate z...
+            Debug.Log(skiingAcceleration.ToDetailedString());
+            _rb.velocity += skiingAcceleration * Time.deltaTime;
+
+            _lastFramedAccelerated = Time.frameCount;
+        }
+    }
+
     private void SlowDownIfNotAccelerated() {
         if (Time.frameCount == _lastFramedAccelerated) return;
         if (_rb.velocity.sqrMagnitude < 0.06) {
@@ -40,9 +57,5 @@ public class GroundCharacterMover : MonoBehaviour, ICharacterMover {
         };
 
         Accelerate(-_rb.velocity.ZeroY() / 2);
-    }
-
-    private bool IsGrounded() {
-        return Physics.Raycast(transform.position, Vector3.down, transform.localScale.y * 1.05f);
     }
 }

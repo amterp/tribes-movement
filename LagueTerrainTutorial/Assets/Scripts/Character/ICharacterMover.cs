@@ -6,5 +6,6 @@ using UnityEngine;
 public interface ICharacterMover {
     void UpdateMover();
     void LateUpdateMover();
+    void Ski();
     void Accelerate(Vector3 vector);
 }

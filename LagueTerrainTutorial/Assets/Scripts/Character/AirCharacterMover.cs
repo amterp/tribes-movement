@@ -29,4 +29,8 @@ public class AirCharacterMover : MonoBehaviour, ICharacterMover {
     public void LateUpdateMover() {
         // no-op
     }
+
+    public void Ski() {
+        throw new NotImplementedException($"{typeof(AirCharacterMover).Name} does not know how to Ski!");
+    }
 }
