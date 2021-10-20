@@ -10,6 +10,7 @@ public class GroundCharacterMover : MonoBehaviour, ICharacterMover {
     private CharacterProperties _characterProperties;
     private Rigidbody _rb;
     private int _lastFramedAccelerated;
+    private Vector3 _latestDownSlopeAcceleration = Vector3.down;
 
     void Awake() {
         _characterProperties = GetComponent<CharacterProperties>();
@@ -33,19 +34,34 @@ public class GroundCharacterMover : MonoBehaviour, ICharacterMover {
     }
 
     public void Ski() {
-        Debug.Log("Skiing!" + Physics.gravity.y);
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, transform.localScale.y * 1.05f)) {
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, transform.localScale.y * 2.05f)) {
             float x = hit.normal.x;
             float y = hit.normal.y;
+            float z = hit.normal.z;
 
-            float ay = x * Physics.gravity.y / Mathf.Sqrt(1 + Mathf.Pow(y, 2) / Mathf.Pow(x, 2));
-            float ax = y / x * ay;
-            Vector3 skiingAcceleration = new Vector3(ax, ay, 0); // todo calculate z...
-            Debug.Log(skiingAcceleration.ToDetailedString());
-            _rb.velocity += skiingAcceleration * Time.deltaTime;
+            Vector3 awayFromSlopeOnXZ = hit.normal.ZeroY();
+            Vector3 normalForwardTangent = Vector3.Cross(hit.normal, awayFromSlopeOnXZ);
+            Vector3 downSlopeVector = -Vector3.Cross(hit.normal, normalForwardTangent);
 
+
+            // Let this magnitude be a.
+            // Let theta be the angle between the flat xz plane and the normal of the surface.
+            // Let x, y, z be the Vector3 components of the surface normal.
+            //
+            // tan(theta) = y / sqrt(x^2 + z^2)            (toa part of soh,cah,toa)
+            //     theta = atan(sqrt(x^2 + z^2) / y)       (rearrange)
+            // cos(theta) = g / a                          (via trigonometry laws)
+            //     a = g / cos(theta)                      (rearrange)
+            //       = g / cos(atan(sqrt(x^2 + z^2) / y))  (substitute theta)
+            float downSlopeMagnitude = -Physics.gravity.y / Mathf.Cos(Mathf.Atan(Mathf.Sqrt(Mathf.Pow(x, 2) + Mathf.Pow(z, 2)) / y));
+
+            Vector3 downSlopeAcceleration = downSlopeMagnitude * downSlopeVector;
+            Debug.Log("Skiing " + "|" + downSlopeAcceleration.magnitude + "| " + downSlopeAcceleration.ToDetailedString());
+
+            _rb.velocity += downSlopeAcceleration * Time.deltaTime;
             _lastFramedAccelerated = Time.frameCount;
+            _latestDownSlopeAcceleration = downSlopeAcceleration;
         }
     }
 
@@ -57,5 +73,11 @@ public class GroundCharacterMover : MonoBehaviour, ICharacterMover {
         };
 
         Accelerate(-_rb.velocity.ZeroY() / 2);
+    }
+
+    void OnDrawGizmos() {
+        if (_latestDownSlopeAcceleration == Vector3.zero) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(transform.position, _latestDownSlopeAcceleration);
     }
 }
