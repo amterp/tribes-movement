@@ -5,20 +5,23 @@ using UnityEngine;
 
 [RequireComponent(typeof(CharacterProperties))]
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Jetpack))]
 public class AirCharacterMover : MonoBehaviour, ICharacterMover {
 
     private CharacterProperties _characterProperties;
     private Rigidbody _rb;
+    private Jetpack _jetpack;
 
     void Awake() {
         _characterProperties = GetComponent<CharacterProperties>();
         _rb = GetComponent<Rigidbody>();
+        _jetpack = GetComponent<Jetpack>();
     }
 
     public void Accelerate(Vector3 vector) {
         Vector3 acceleration = Vector3.zero;
         acceleration += vector.ZeroY().normalized * _characterProperties.AccelerationAmount * _characterProperties.MidAirAccelerationFactor;
-        acceleration += new Vector3(0, vector.y.normalized() * _characterProperties.JetpackPower, 0);
+        acceleration += vector.y.isAboutZero() ? Vector3.zero : _jetpack.UseAndGetVector();
         _rb.velocity += acceleration * Time.deltaTime;
     }
 

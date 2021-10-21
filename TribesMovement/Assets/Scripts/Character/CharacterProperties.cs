@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterProperties : MonoBehaviour {
-    public float AccelerationAmount = 200;
+    public float AccelerationAmount = 100;
     public float MaxSpeed = 32;
-    public float MidAirAccelerationFactor = 0.2f;
-    public float JetpackPower = 60f;
+    public float MidAirAccelerationFactor = 0.5f;
+    public float JetpackAcceleration = 40f;
+    public float JetpackMaxFuel = 100f;
+    public float JetpackFuelConsumptionPerSecond = 10f;
+    public float JetpackFuelRefillPerSecond = 15f;
 }

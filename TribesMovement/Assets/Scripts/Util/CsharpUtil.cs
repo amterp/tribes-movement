@@ -40,4 +40,12 @@ public static class CsharpUtil {
         if (thisFloat < 0) return -1;
         return 1;
     }
+
+    public static bool isAboutZero(this float thisFloat) {
+        return Mathf.Approximately(0, thisFloat);
+    }
+
+    public static string FormatAsPercent(this float thisFloat) {
+        return string.Format("{0:P1}", thisFloat);
+    }
 }
