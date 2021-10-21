@@ -48,4 +48,8 @@ public static class CsharpUtil {
     public static string FormatAsPercent(this float thisFloat) {
         return string.Format("{0:P1}", thisFloat);
     }
+
+    public static void SafeInvoke<T>(this Action<T> action, T arg) {
+        if (action != null) action(arg);
+    }
 }

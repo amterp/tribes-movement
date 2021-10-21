@@ -15,8 +15,6 @@ public class JetpackTank : MonoBehaviour {
 
     void LateUpdate() {
         RunGradualRefill();
-        float fuelRatio = _currentFuel / _characterProps.JetpackMaxFuel;
-        Debug.Log($"Fuel: {fuelRatio.FormatAsPercent()} | {_currentFuel} / {_characterProps.JetpackMaxFuel}");
     }
 
     public float TryUseFuelAndReturnEfficiency() {
@@ -24,7 +22,7 @@ public class JetpackTank : MonoBehaviour {
 
         float maxAmountToUse = _characterProps.JetpackFuelConsumptionPerSecond * Time.deltaTime;
         float amountUsed = Mathf.Min(maxAmountToUse, _currentFuel);
-        _currentFuel -= amountUsed;
+        AddFuel(-amountUsed);
 
         float efficiency = amountUsed / maxAmountToUse;
         return efficiency;
@@ -34,6 +32,13 @@ public class JetpackTank : MonoBehaviour {
         if (_currentFuel >= _characterProps.JetpackMaxFuel) return;
         if (Time.frameCount == _lastFrameUsedFuel) return;
         float fuelRefillAmount = _characterProps.JetpackFuelRefillPerSecond * Time.deltaTime;
-        _currentFuel = Mathf.Min(_characterProps.JetpackMaxFuel, _currentFuel + fuelRefillAmount);
+        AddFuel(fuelRefillAmount);
+    }
+
+    private void AddFuel(float fuelToAdd) {
+        float newFuel = Mathf.Min(_characterProps.JetpackMaxFuel, _currentFuel + fuelToAdd);
+        float actualFuelAdded = newFuel - _currentFuel;
+        _currentFuel = newFuel;
+        GameManager.Events.PlayerFuelChangedEvent.SafeInvoke(_currentFuel / _characterProps.JetpackMaxFuel);
     }
 }
