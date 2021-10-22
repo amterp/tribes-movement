@@ -8,6 +8,7 @@ public class PlayerInputController : MonoBehaviour {
 
     [SerializeField] private MonoBehaviour _characterMoverGameObject;
     private ICharacterMover _characterMover;
+    private bool _skiiedPreviousFrame = false;
 
     void Awake() {
         _characterMover = _characterMoverGameObject as ICharacterMover;
@@ -26,8 +27,10 @@ public class PlayerInputController : MonoBehaviour {
         bool pressJetpack = Input.GetMouseButton(RIGHT_CLICK);
         if (!pressJetpack && Input.GetKey(KeyCode.Space)) {
             _characterMover.Ski();
+            UpdateIsSkiingStatus(true);
             return;
         }
+        UpdateIsSkiingStatus(false);
 
         Vector3 targetDirection = Vector3.zero;
 
@@ -42,5 +45,12 @@ public class PlayerInputController : MonoBehaviour {
         if (targetDirection == Vector3.zero) return;
 
         _characterMover.Accelerate(targetDirection.normalized);
+    }
+
+    private void UpdateIsSkiingStatus(bool isSkiing) {
+        if (_skiiedPreviousFrame != isSkiing) {
+            _skiiedPreviousFrame = isSkiing;
+            GameManager.Events.PlayerIsSkiingStateChangedEvent.SafeInvoke(isSkiing);
+        }
     }
 }
