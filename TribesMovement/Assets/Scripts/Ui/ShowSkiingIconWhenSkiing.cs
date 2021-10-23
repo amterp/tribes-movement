@@ -9,7 +9,7 @@ public class ShowSkiingIconWhenSkiing : MonoBehaviour {
     [SerializeField] private bool _startHidden = true;
 
     void Awake() {
-        GameManager.Events.PlayerIsSkiingStateChangedEvent += isSkiing => _icon.SetActive(isSkiing);
+        GameManager.Instance.Events.PlayerIsSkiingStateChangedEvent += isSkiing => _icon.SetActive(isSkiing);
     }
 
     void Start() {

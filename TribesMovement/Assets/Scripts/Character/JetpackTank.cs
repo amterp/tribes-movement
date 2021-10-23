@@ -39,6 +39,7 @@ public class JetpackTank : MonoBehaviour {
         float newFuel = Mathf.Min(_characterProps.JetpackMaxFuel, _currentFuel + fuelToAdd);
         float actualFuelAdded = newFuel - _currentFuel;
         _currentFuel = newFuel;
-        GameManager.Events.PlayerFuelChangedEvent.SafeInvoke(_currentFuel / _characterProps.JetpackMaxFuel);
+        GameManager.Instance.Events.PlayerFuelChangedEvent
+            .SafeInvoke(_currentFuel / _characterProps.JetpackMaxFuel, actualFuelAdded / _characterProps.JetpackMaxFuel);
     }
 }

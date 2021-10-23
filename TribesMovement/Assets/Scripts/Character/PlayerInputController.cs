@@ -50,7 +50,7 @@ public class PlayerInputController : MonoBehaviour {
     private void UpdateIsSkiingStatus(bool isSkiing) {
         if (_skiiedPreviousFrame != isSkiing) {
             _skiiedPreviousFrame = isSkiing;
-            GameManager.Events.PlayerIsSkiingStateChangedEvent.SafeInvoke(isSkiing);
+            GameManager.Instance.Events.PlayerIsSkiingStateChangedEvent.SafeInvoke(isSkiing);
         }
     }
 }

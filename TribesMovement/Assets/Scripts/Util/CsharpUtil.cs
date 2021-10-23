@@ -52,4 +52,8 @@ public static class CsharpUtil {
     public static void SafeInvoke<T>(this Action<T> action, T arg) {
         if (action != null) action(arg);
     }
+
+    public static void SafeInvoke<T, U>(this Action<T, U> action, T arg1, U arg2) {
+        if (action != null) action(arg1, arg2);
+    }
 }

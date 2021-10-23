@@ -7,11 +7,11 @@ public class JetpackFuelUi : MonoBehaviour {
 
     [SerializeField] public Transform uiBarToShrink;
 
-    void Awake() {
-        GameManager.Events.PlayerFuelChangedEvent += OnFuelChanged;
+    void Start() {
+        GameManager.Instance.Events.PlayerFuelChangedEvent += OnFuelChanged;
     }
 
-    private void OnFuelChanged(float newFuelRatio) {
+    private void OnFuelChanged(float newFuelRatio, float deltaFuelRatio) {
         uiBarToShrink.localScale = new Vector3(newFuelRatio, uiBarToShrink.localScale.y, uiBarToShrink.localScale.z);
     }
 }
