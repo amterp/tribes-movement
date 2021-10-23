@@ -7,11 +7,18 @@ public class PlayerInputController : MonoBehaviour {
     private const int RIGHT_CLICK = 1;
 
     [SerializeField] private MonoBehaviour _characterMoverGameObject;
+    [SerializeField] private PhysicMaterial _playerPhysicMaterial;
+    private CharacterProperties _characterProperties;
     private ICharacterMover _characterMover;
     private bool _skiiedPreviousFrame = false;
 
     void Awake() {
+        _characterProperties = GetComponent<CharacterProperties>();
         _characterMover = _characterMoverGameObject as ICharacterMover;
+    }
+
+    void Start() {
+        UpdateIsSkiingStatus(false);
     }
 
     void Update() {
@@ -27,10 +34,10 @@ public class PlayerInputController : MonoBehaviour {
         bool pressJetpack = Input.GetMouseButton(RIGHT_CLICK);
         if (!pressJetpack && Input.GetKey(KeyCode.Space)) {
             _characterMover.Ski();
-            UpdateIsSkiingStatus(true);
+            UpdateIsSkiingStatusIfChanged(true);
             return;
         }
-        UpdateIsSkiingStatus(false);
+        UpdateIsSkiingStatusIfChanged(false);
 
         Vector3 targetDirection = Vector3.zero;
 
@@ -47,10 +54,16 @@ public class PlayerInputController : MonoBehaviour {
         _characterMover.Accelerate(targetDirection.normalized);
     }
 
-    private void UpdateIsSkiingStatus(bool isSkiing) {
+    private void UpdateIsSkiingStatusIfChanged(bool isSkiing) {
         if (_skiiedPreviousFrame != isSkiing) {
-            _skiiedPreviousFrame = isSkiing;
-            GameManager.Instance.Events.PlayerIsSkiingStateChangedEvent.SafeInvoke(isSkiing);
+            UpdateIsSkiingStatus(isSkiing);
         }
+    }
+
+    private void UpdateIsSkiingStatus(bool isSkiing) {
+        _skiiedPreviousFrame = isSkiing;
+        _playerPhysicMaterial.staticFriction = isSkiing ? _characterProperties.SkiFriction : _characterProperties.WalkFrictionStatic;
+        _playerPhysicMaterial.dynamicFriction = isSkiing ? _characterProperties.SkiFriction : _characterProperties.WalkFrictionDynamic;
+        GameManager.Instance.Events.PlayerIsSkiingStateChangedEvent.SafeInvoke(isSkiing);
     }
 }
