@@ -14,6 +14,6 @@ public class IsGroundedChecker : MonoBehaviour {
     }
 
     private bool CalculateIsGrounded() {
-        return Physics.Raycast(transform.position, Vector3.down, transform.localScale.y * 1.05f);
+        return Physics.Raycast(transform.position, Vector3.down, transform.localScale.y * 1.5f);
     }
 }

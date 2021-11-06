@@ -44,7 +44,6 @@ public class GroundCharacterMover : MonoBehaviour, ICharacterMover {
             Vector3 normalForwardTangent = Vector3.Cross(hit.normal, awayFromSlopeOnXZ);
             Vector3 downSlopeVector = -Vector3.Cross(hit.normal, normalForwardTangent);
 
-
             // Let this magnitude be a.
             // Let theta be the angle between the flat xz plane and the normal of the surface.
             // Let x, y, z be the Vector3 components of the surface normal.
